@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Мои команды{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Мои команды</h2>
+    <a class="btn btn-primary" href="{% url 'team_create' %}">+ Новая команда</a>
+</div>
+
+<h5 class="mt-4">Я капитан</h5>
+{% if captained_teams %}
+    <div class="row g-3">
+        {% for t in captained_teams %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{% url 'team_detail' t.id %}">{{ t.name }}</a></h5>
+                        <p class="text-muted small">{{ t.description|default:"—"|truncatechars:120 }}</p>
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'team_members' t.id %}">Участники</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">Пока нет команд, где вы капитан.</p>
+{% endif %}
+
+<h5 class="mt-4">Я участник</h5>
+{% if member_teams %}
+    <div class="row g-3">
+        {% for t in member_teams %}
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{% url 'team_detail' t.id %}">{{ t.name }}</a></h5>
+                        <p class="text-muted small">Капитан: {{ t.captain.username }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p class="text-muted">Пока не состоите в чужих командах.</p>
+{% endif %}
+{% endblock %}

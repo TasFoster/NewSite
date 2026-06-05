@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Участники — {{ team.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Участники: {{ team.name }}</h2>
+    <a class="btn btn-outline-secondary" href="{% url 'team_detail' team.id %}">← К доске</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr><th>Username</th><th>Роль</th><th></th></tr>
+    </thead>
+    <tbody>
+    {% for m in memberships %}
+        <tr>
+            <td>{{ m.user.username }}{% if m.user_id == team.captain_id %} <span class="badge bg-warning text-dark">Капитан</span>{% endif %}</td>
+            <td>{{ m.role|default:"—" }}</td>
+            <td class="text-end">
+                {% if m.user_id != team.captain_id %}
+                    <a class="btn btn-sm btn-outline-primary" href="{% url 'team_member_edit' team.id m.id %}">Роль</a>
+                    <form action="{% url 'team_member_remove' team.id m.id %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button class="btn btn-sm btn-outline-danger" type="submit" onclick="return confirm('Удалить участника?')">Удалить</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h5 class="mt-4">Добавить участника</h5>
+<form method="post" action="{% url 'team_member_add' team.id %}" class="row g-2 col-md-8">
+    {% csrf_token %}
+    <div class="col-md-5">
+        <label class="form-label">Username</label>
+        {{ add_form.username }}
+        {% if add_form.username.errors %}<div class="text-danger small">{{ add_form.username.errors|join:", " }}</div>{% endif %}
+    </div>
+    <div class="col-md-5">
+        <label class="form-label">Роль</label>
+        {{ add_form.role }}
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button class="btn btn-primary w-100" type="submit">Добавить</button>
+    </div>
+</form>
+<script>
+document.querySelectorAll('input').forEach(el => el.classList.add('form-control'));
+</script>
+{% endblock %}

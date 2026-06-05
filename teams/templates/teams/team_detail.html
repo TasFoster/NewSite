@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ team.name }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-0">{{ team.name }}</h2>
+        <small class="text-muted">Капитан: {{ team.captain.username }}</small>
+    </div>
+    <div>
+        <a class="btn btn-primary" href="{% url 'ticket_create' team.id %}">+ Тикет</a>
+        {% if is_captain %}
+            <a class="btn btn-outline-secondary" href="{% url 'team_members' team.id %}">Участники</a>
+        {% endif %}
+    </div>
+</div>
+
+{% if team.description %}<p class="text-muted">{{ team.description }}</p>{% endif %}
+
+<div class="board mt-3">
+    {% for col in columns %}
+        <div class="col-status">
+            <h6>{{ col.label }} <span class="text-muted">({{ col.tickets|length }})</span></h6>
+            {% for t in col.tickets %}
+                <div class="ticket-card">
+                    <a href="{% url 'ticket_detail' t.id %}"><strong>{{ t.title }}</strong></a>
+                    <div class="small text-muted">
+                        {% if t.assignee %}@{{ t.assignee.username }}{% else %}<em>без исполнителя</em>{% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <div class="text-muted small">пусто</div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</div>
+
+<hr class="my-4">
+<h5>Участники</h5>
+<ul class="list-group col-md-6">
+    {% for m in memberships %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>{{ m.user.username }}{% if m.user_id == team.captain_id %} <span class="badge bg-warning text-dark ms-1">Капитан</span>{% endif %}</span>
+            <span class="badge role-badge">{{ m.role|default:"—" }}</span>
+        </li>
+    {% endfor %}
+</ul>
+{% endblock %}

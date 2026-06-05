@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Новая команда{% endblock %}
+{% block content %}
+<h2>Новая команда</h2>
+<form method="post" class="col-md-6">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="text-danger small">{{ field.errors|join:", " }}</div>{% endif %}
+        </div>
+    {% endfor %}
+    <button class="btn btn-primary" type="submit">Создать</button>
+    <a class="btn btn-link" href="{% url 'dashboard' %}">Отмена</a>
+</form>
+<script>
+document.querySelectorAll('input, textarea').forEach(el => el.classList.add('form-control'));
+</script>
+{% endblock %}

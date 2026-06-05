@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}{{ ticket.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-3">
+    <div>
+        <h2 class="mb-1">{{ ticket.title }}</h2>
+        <div class="text-muted small">
+            Команда: <a href="{% url 'team_detail' team.id %}">{{ team.name }}</a> ·
+            Автор: {{ ticket.created_by.username }} ·
+            Создан: {{ ticket.created_at|date:"d.m.Y H:i" }}
+            {% if ticket.completed_at %} · Завершён: {{ ticket.completed_at|date:"d.m.Y H:i" }}{% endif %}
+        </div>
+    </div>
+    <div>
+        <span class="badge bg-secondary fs-6">{{ ticket.get_status_display }}</span>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <p class="mb-1"><strong>Исполнитель:</strong>
+            {% if ticket.assignee %}{{ ticket.assignee.username }}{% else %}<em class="text-muted">не назначен</em>{% endif %}
+        </p>
+        <hr>
+        <p class="mb-0" style="white-space: pre-wrap;">{{ ticket.description|default:"—" }}</p>
+    </div>
+</div>
+
+{% if can_change_status %}
+<div class="mb-3">
+    <strong>Изменить статус:</strong>
+    <form method="post" action="{% url 'ticket_status' ticket.id %}" class="d-inline">
+        {% csrf_token %}
+        <div class="btn-group ms-2">
+            {% for value, label in status_choices %}
+                <button type="submit" name="status" value="{{ value }}"
+                        class="btn btn-sm {% if ticket.status == value %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    {{ label }}
+                </button>
+            {% endfor %}
+        </div>
+    </form>
+</div>
+{% endif %}
+
+<div>
+    {% if is_captain or ticket.created_by_id == user.id %}
+        <a class="btn btn-outline-secondary" href="{% url 'ticket_edit' ticket.id %}">Редактировать</a>
+    {% endif %}
+    {% if is_captain %}
+        <form action="{% url 'ticket_delete' ticket.id %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <button class="btn btn-outline-danger" type="submit" onclick="return confirm('Удалить тикет?')">Удалить</button>
+        </form>
+    {% endif %}
+    <a class="btn btn-link" href="{% url 'team_detail' team.id %}">← К доске</a>
+</div>
+{% endblock %}
